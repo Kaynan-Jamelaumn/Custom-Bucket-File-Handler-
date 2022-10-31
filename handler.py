@@ -201,9 +201,10 @@ def events_to_do(events=[]):
       print('No file or path Specified')
     else:
       try:
-        a_s3_resource = boto3.resource('s3',
-                                       aws_access_key_id=item.bucket[0],
-                                       aws_secret_access_key=item.bucket[1])
+
+        s3_resource = boto3.resource('s3',
+                                     aws_access_key_id=item.bucket[0],
+                                     aws_secret_access_key=item.bucket[1])
         bucket = s3_resource.Bucket(item.bucket[2])
 
         if item.event == 'write':
@@ -229,7 +230,7 @@ def events_to_do(events=[]):
         elif item.event == 'download_all_files':
           print('sdsds', item.bucket[2], item.prefix, item.directory)
           download_all_files(bucket=bucket,
-                             s3_resource=a_s3_resource,
+                             s3_resource=s3_resource,
                              prefix=item.prefix,
                              directory=item.directory,
                              bucket_name=item.bucket[2])
