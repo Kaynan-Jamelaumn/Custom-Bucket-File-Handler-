@@ -176,7 +176,7 @@ def read(file='', path='', jsonfy=False):
       file = open(f'bucket_files\{file}', 'r')
 
     if read_file.split('.')[-1] == 'json':  # check if it's jason
-      content = json.load(content, read_file)
+      content = json.load(file)
       file.close()
       if jsonfy == True:
         if is_json(content) == False:
