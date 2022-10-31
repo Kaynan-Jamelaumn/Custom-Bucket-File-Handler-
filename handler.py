@@ -18,25 +18,35 @@ def is_json(content):
   return True
 
 
-def download_all_files(bucket, prefix, s3_resource, path=''):
-  i = 0
-  if not path:
-    path = 'bucket_files'
-  path = os.path.join(os.getcwd(), path)
+def download_all_files(bucket,
+                       s3_resource,
+                       prefix,
+                       directory='',
+                       bucket_name=''):
+
+  if not directory:
+    directory = 'bucket_files'
+  directory = os.path.join(os.getcwd(), directory)
   try:
-    os.chdir(path)
+    os.chdir(directory)
   except:
-    os.mkdir(path)
-  print(path, prefix)
+    os.mkdir(directory)
   objects = bucket.objects.filter(Prefix=f'{prefix}/')
+  i = 0
   for object in objects:
     if not i == 0:
-      # print(object.key)
       file = object.key
       file = file.split('/')[1]
-      s3_resource.Object(bucket,
-                         object.key).download_file(os.path.join(path, file))
+      s3_resource.Object(bucket_name, object.key).download_file(
+        os.path.join(directory, file))
     i += 1
+
+
+# download_all_files(bucket=bucket, s3_resource=s3_resource,                  prefix='Video', directory='Fon')
+
+
+def overwrite(bucket, file, content='', prefix='', path='', jsonfy=False):
+  write(bucket, file, content, prefix, path, jsonfy, True)
 
 
 def write(bucket,
@@ -49,7 +59,7 @@ def write(bucket,
   if file and path == None:
     print('path and file cant be none')
     return
-  if content:
+  if content or file.split('.')[1] not in format_type:
     upload_file = file  # name of the file
     if not file.split('.')[1] in format_type:
       if jsonfy == True:
@@ -63,8 +73,7 @@ def write(bucket,
             if not file.split('.')[1] in format_type:
               if overwrite == True:
                 file = open(path, 'w')
-              else:
-                file = open(path, 'a')
+              file = open(path, 'a')
           except:
             print('check path again')
         else:
@@ -73,9 +82,9 @@ def write(bucket,
           try:
             if not file.split('.')[1] in format_type:
               if overwrite == True:
-                file = open(os.path.join(path, file), 'w')
-              else:
                 file = open(os.path.join(path, file), 'a')
+              else:
+                file = open(os.path.join(path, file), 'w')
           except:
             print('1 file does not exists at the specified path')
       else:
@@ -133,6 +142,9 @@ def write(bucket,
     print('must have a content')
 
 
+# a = r"C:\Users\kayna\OneDrive\Área de Trabalho\aws\project_1\bucket_files"
+
+
 def read(file='', path='', jsonfy=False):
   if file.split('.')[1] not in format_type:
     if path:
@@ -164,7 +176,7 @@ def read(file='', path='', jsonfy=False):
       file = open(f'bucket_files\{file}', 'r')
 
     if read_file.split('.')[-1] == 'json':  # check if it's jason
-      content = json.load(file.read(), read_file)
+      content = json.load(content, read_file)
       file.close()
       if jsonfy == True:
         if is_json(content) == False:
@@ -181,33 +193,6 @@ def read(file='', path='', jsonfy=False):
       return print(content)
 
 
-def overwrite(bucket, file, content='', prefix='', path='', jsonfy=False):
-  write(bucket=bucket,
-        file=file,
-        content=content,
-        prefix=prefix,
-        path=path,
-        jsonfy=jsonfy,
-        overwrite=True)
-
-
-def erase(path, extension='', dir_erase=False):
-  if not extension:
-    os.chdir(path)
-    itens = os.listdir()
-    for item in itens:
-      os.remove(item)
-    if dir_erase == True:
-      os.rmdir(path)
-  else:
-    # walk list dir turbinado
-    for root, dirs, file in os.walk(os.getcwd(path)):
-      if file.split('.')[1] == extension:
-        os.remove(item)
-    if dir_erase == True:
-      os.rmdir(path)
-
-
 def events_to_do(events=[]):
   for item in events:
     if not item.event:
@@ -216,9 +201,9 @@ def events_to_do(events=[]):
       print('No file or path Specified')
     else:
       try:
-        s3_resource = boto3.resource('s3',
-                                     aws_access_key_id=item.bucket[0],
-                                     aws_secret_access_key=item.bucket[1])
+        a_s3_resource = boto3.resource('s3',
+                                       aws_access_key_id=item.bucket[0],
+                                       aws_secret_access_key=item.bucket[1])
         bucket = s3_resource.Bucket(item.bucket[2])
 
         if item.event == 'write':
@@ -240,24 +225,35 @@ def events_to_do(events=[]):
                     prefix=item.prefix,
                     jsonfy=item.jsonfy)
         elif item.event == 'read':
-          read(bucket=bucket,
-               file=item.file,
-               content=item.content,
-               prefix=item.prefix,
-               jsonfy=item.jsonfy)
+          read(file=item.file, jsonfy=item.jsonfy)
         elif item.event == 'download_all_files':
-          download_all_files(bucket=item.bucket[2],
-                             s3_resource=s3_resource,
+          print('sdsds', item.bucket[2], item.prefix, item.directory)
+          download_all_files(bucket=bucket,
+                             s3_resource=a_s3_resource,
                              prefix=item.prefix,
-                             directory=item.directory)
-        elif item.event == 'erase':
-          erase(path=item.path,
-                extension=item.extension,
-                dir_erase=item.dir_erase)
+                             directory=item.directory,
+                             bucket_name=item.bucket[2])
         else:
-          print('you suck')
+          'you suck'
       except:
         print('File does Not exists at the Prefix informed or in base Prefix')
 
       else:
         print('Success')
+
+
+def erase(path, extension='', dir_erase=False):
+  if not extension:
+    os.chdir(path)
+    itens = os.listdir()
+    for item in itens:
+      os.remove(item)
+    if dir_erase == True:
+      os.rmdir(path)
+  else:
+    # walk list dir turbinado
+    for root, dirs, file in os.walk(os.getcwd(path)):
+      if file.split('.')[1] == extension:
+        os.remove(item)
+    if dir_erase == True:
+      os.rmdir(path)
