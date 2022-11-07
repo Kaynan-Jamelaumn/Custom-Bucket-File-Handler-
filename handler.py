@@ -73,7 +73,8 @@ def write(bucket,
             if not file.split('.')[1] in format_type:
               if overwrite == True:
                 file = open(path, 'w')
-              file = open(path, 'a')
+              else:
+                file = open(path, 'a')
           except:
             print('check path again')
         else:
@@ -190,7 +191,7 @@ def read(file='', path='', jsonfy=False):
           content = json.dumps(content)
 
       file.close()
-      return print(content)
+      return print(content), content
 
 
 def events_to_do(events=[]):
@@ -253,7 +254,7 @@ def erase(path, extension='', dir_erase=False):
       os.rmdir(path)
   else:
     # walk list dir turbinado
-    for root, dirs, file in os.walk(os.getcwd(path)):
+    for root, dirs, file in os.walk(os.chdir(path)):  #os.getcwd(path)
       if file.split('.')[1] == extension:
         os.remove(item)
     if dir_erase == True:
