@@ -1,117 +1,133 @@
 import handler
 from secrets import access_key, secret_access_key
-#from project_1.code import overwrite
-
 
 class Event:
-  events = ('write', 'overwrite', 'read', 'download_all_files', 'erase')
+    events = ('write', 'overwrite', 'read', 'download_all_files', 'erase')
 
-  def __init__(self):
-    self.__file = ''
-    self.__event = ''
-    self.__content = ''
-    self.__prefix = ''
-    self.__bucket = []
-    self.__path = ''
-    self.__jsonfy = False
-    self.__directory = ''
-    self.__dir_erase = False
-    self.__extension = ''
+    def __init__(self):
+        self.__file = None, []
+        self.__event = None
+        self.__content = None
+        self.__prefix = None
+        self.__bucket = []
+        self.__path = None
+        self.__jsonfy = False
+        self.__directory = None
+        self.__exception = None
+        self.__only_extension = None
+        self.__dir_erase = False
+        self.__extension = None
 
-  @property
-  def file(self):
-    return self.__file
+    @property
+    def only_extension(self):
+        return self.__only_extension
 
-  @file.setter
-  def file(self, value):
-    self.__file = value
+    @only_extension.setter
+    def only_extension(self, value: str | list | tuple):
+        self.__only_extension = value
 
-  @property
-  def event(self):
-    return self.__event
+    @property
+    def file(self):
+        return self.__file
 
-  @event.setter
-  def event(self, value):
-    if value.lower() in Event.events:
-      self.__event = value.lower()
+    @file.setter
+    def file(self, value: str | dict):
+        self.__file = value
 
-  @property
-  def content(self):
-    return self.__content
+    @property
+    def event(self):
+        return self.__event
 
-  @content.setter
-  def content(self, value):
-    self.__content = value
+    @event.setter
+    def event(self, value: str):
+        if value.lower() in Event.events:
+            self.__event = value.lower()
 
-  @property
-  def prefix(self):
-    return self.__prefix
+    @property
+    def content(self):
+        return self.__content
 
-  @prefix.setter
-  def prefix(self, value):
-    self.__prefix = value
+    @content.setter
+    def content(self, value: str):
+        self.__content = value
 
-  @property
-  def path(self):
-    return self.__path
+    @property
+    def prefix(self):
+        return self.__prefix
 
-  @path.setter
-  def path(self, value):
-    self.__path = value
+    @prefix.setter
+    def prefix(self, value: str):
+        self.__prefix = value
 
-  @property
-  def jsonfy(self):
-    return self.__jsonfy
+    @property
+    def path(self):
+        return self.__path
 
-  @jsonfy.setter
-  def jsonfy(self):
-    if self.jsonfy != True:
-      self.__jsonfy = True
-    else:
-      self.__jsonfy = False
+    @path.setter
+    def path(self, value: str):
+        self.__path = value
 
-  @property
-  def bucket(self):
-    return self.__bucket
+    @property
+    def jsonfy(self):
+        return self.__jsonfy
 
-  @bucket.setter
-  def bucket(self, value):
-    self.__bucket = value
+    @jsonfy.setter
+    def jsonfy(self, value):
+        # fictional value
+        if self.jsonfy != True:
+            self.__jsonfy = True
+        else:
+            self.__jsonfy = False
 
-  @property
-  def directory(self):
-    return self.__directory
+    @property
+    def bucket(self):
+        return self.__bucket
 
-  @directory.setter
-  def directory(self, value):
-    self.__directory = value
+    @bucket.setter
+    def bucket(self, value: list | tuple):
+        self.__bucket = value
 
-  @property
-  def extension(self):
-    return self.__extension
+    @property
+    def directory(self):
+        return self.__directory
 
-  @extension.setter
-  def extension(self, value):
-    self.__extension = value
+    @directory.setter
+    def directory(self, value: str):
+        self.__directory = value
 
-  @property
-  def dir_erase(self):
-    return self.__dir_erase
+    @property
+    def extension(self):
+        return self.__extension
 
-  @dir_erase.setter
-  def dir_erase(self):
-    if self.__dir_erase != True:
+    @extension.setter
+    def extension(self, value: str):
+        self.__extension = value
 
-      self.__dir_erase = True
-    else:
-      self.__dir_erase = False
+    @property
+    def dir_erase(self):
+        return self.__dir_erase
+
+    @dir_erase.setter
+    def dir_erase(self, value):
+        # fictional value
+        if self.__dir_erase != True:
+            self.__dir_erase = True
+        else:
+            self.__dir_erase = False
+
+    @property
+    def exception(self):
+        return self.__exception
+
+    @exception.setter
+    def exception(self, value: str | list | tuple):
+        self.__exception = value
 
 
 object = []
 a = Event()
 a.event = 'download_all_files'
 a.bucket = [access_key, secret_access_key, ' your bucket-name']
-a.prefix = 'Video'
 object.append(a)
-
-print(handler.events_to_do(object))
+handler.events_to_do(object)
+#print(handler.events_to_do(object))
