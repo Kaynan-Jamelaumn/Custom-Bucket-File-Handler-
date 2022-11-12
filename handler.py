@@ -46,7 +46,11 @@ def download_all_files(bucket,
         os.chdir(directory)
     except:
         os.mkdir(directory)
-    objects = bucket.objects.filter(Prefix=f'{prefix}/')
+    try:
+        objects = bucket.objects.filter(Prefix=f'{prefix}/')
+    except Exception:
+        print('Prefix not found)
+        return
     i = 0
 
     for object in objects:
@@ -63,9 +67,9 @@ def download_all_files(bucket,
                             Prefix=f'{prefix}/').download_file(file, directory)
                
 
-            """
-      s3_resource.Object(bucket_name, object.key).download_file(
-        os.path.join(directory, file))
+      """
+          s3_resource.Object(bucket_name, object.key).download_file(
+            os.path.join(directory, file))
       """
         i += 1
 
