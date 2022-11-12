@@ -54,9 +54,15 @@ def download_all_files(bucket,
             file = object.key
             file = file.split('/')[1]
             if file.split('.')[1] not in exception:
-                if file.split('.')[1] in only_extension:
+                if only_extension:
+                    if file.split('.')[1] in only_extension:
+                        bucket.objects.filter(
+                            Prefix=f'{prefix}/').download_file(file, directory)
+                else:
                     bucket.objects.filter(
-                        Prefix=f'{prefix}/').download_file(file, directory)
+                            Prefix=f'{prefix}/').download_file(file, directory)
+               
+
             """
       s3_resource.Object(bucket_name, object.key).download_file(
         os.path.join(directory, file))
