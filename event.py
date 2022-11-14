@@ -5,7 +5,7 @@ class Event:
     events = ('write', 'overwrite', 'read', 'download_all_files', 'erase')
 
     def __init__(self):
-        self.__file = None, []
+        self.__file = None
         self.__event = None
         self.__content = None
         self.__prefix = None
@@ -72,12 +72,10 @@ class Event:
         return self.__jsonfy
 
     @jsonfy.setter
-    def jsonfy(self, value):
+    def jsonfy(self, value: bool):
         # fictional value
-        if self.jsonfy != True:
-            self.__jsonfy = True
-        else:
-            self.__jsonfy = False
+        if type(value) == bool:
+            self.__jsonfy = value
 
     @property
     def bucket(self):
@@ -108,12 +106,10 @@ class Event:
         return self.__dir_erase
 
     @dir_erase.setter
-    def dir_erase(self, value):
+    def dir_erase(self, value: bool):
         # fictional value
-        if self.__dir_erase != True:
-            self.__dir_erase = True
-        else:
-            self.__dir_erase = False
+        if type(value) == bool:
+            self.__dir_erase = value
 
     @property
     def exception(self):
