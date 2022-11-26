@@ -1,4 +1,4 @@
-import code
+# import code
 from secrets import access_key, secret_access_key
 # from project_1.code import overwrite
 import os
@@ -14,22 +14,22 @@ class Event:
         'mid', 'midi', 'mp3', 'm4a', 'wav', 'wma'
     ]
 
-    def __init__(self):
-        self.__file = None
-        self.__event = None
-        self.__content = None
-        self.__prefix = None
-        self.__bucket = []
-        self.__path = None
-        self.__jsonfy = False
-        self.__directory = 'bucket_files'
-        self.__exception = None
-        self.__only_extension = None
-        self.__dir_erase = False
-        self.__extension = None
+    def __init__(self, bucket: list | tuple = [], prefix: str = None, file: str = None, content: str = None, path: str = None, event: list | tuple = None, directory: str = 'bucket_files', jsonfy: bool = False, exception: str | list | tuple = "", only_extension: str | list | tuple = None, extension: str | list | tuple = None, dir_erase: bool = False):
+        self.__file = file
+        self.__event = event
+        self.__content = content
+        self.__prefix = prefix
+        self.__bucket = bucket
+        self.__path = path
+        self.__jsonfy = jsonfy
+        self.__directory = directory
+        self.__exception = exception
+        self.__only_extension = only_extension
+        self.__dir_erase = dir_erase
+        self.__extension = extension
 
     @property
-    def only_extension(self):
+    def only_extension(self) -> str | list | tuple:
         return self.__only_extension
 
     @only_extension.setter
@@ -37,7 +37,7 @@ class Event:
         self.__only_extension = value
 
     @property
-    def file(self):
+    def file(self) -> str:
         return self.__file
 
     @file.setter
@@ -49,16 +49,21 @@ class Event:
         self.__file = value
 
     @property
-    def event(self):
+    def event(self) -> str | list | tuple:
         return self.__event
 
     @event.setter
-    def event(self, value: str):
-        if value.lower() in Event.events:
-            self.__event = value.lower()
+    def event(self, value: str | list | tuple):
+        if type(value) == list | tuple:
+            for single_event in value:
+                if single_event.lower() in Event.events:
+                    self.__event = single_event.lower()
+        else:
+            if value.lower() in Event.events:
+                self.__event = value.lower()
 
     @property
-    def content(self):
+    def content(self) -> str:
         return self.__content
 
     @content.setter
@@ -66,7 +71,7 @@ class Event:
         self.__content = value
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
         return self.__prefix
 
     @prefix.setter
@@ -74,7 +79,7 @@ class Event:
         self.__prefix = value
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.__path
 
     @path.setter
@@ -87,11 +92,12 @@ class Event:
                 self.__path = os.path.join(self.__path, self.__file)
 
     @property
-    def jsonfy(self):
+    def jsonfy(self) -> bool:
         return self.__jsonfy
 
     @jsonfy.setter
     def jsonfy(self, value: bool):
+        # fictional value
         if type(value) == bool:
             self.__jsonfy = value
 
@@ -103,10 +109,11 @@ class Event:
     def bucket(self, value: list | tuple):
         s3_resource = boto3.resource('s3', aws_access_key_id=value[0],
                                      aws_secret_access_key=value[1])
+# print(s3.Object('mybucket', 'videos/Car.png'))
         self.__bucket = s3_resource.Bucket(value[2])
 
     @property
-    def directory(self):
+    def directory(self) -> str:
         return self.__directory
 
     @directory.setter
@@ -114,7 +121,7 @@ class Event:
         self.__directory = value
 
     @property
-    def extension(self):
+    def extension(self) -> str:
         return self.__extension
 
     @extension.setter
@@ -122,16 +129,17 @@ class Event:
         self.__extension = value
 
     @property
-    def dir_erase(self):
+    def dir_erase(self) -> bool:
         return self.__dir_erase
 
     @dir_erase.setter
     def dir_erase(self, value: bool):
-      if type(value) == bool:
+        # fictional value
+        if type(value) == bool:
             self.__dir_erase = value
 
     @property
-    def exception(self):
+    def exception(self) -> str | list | tuple:
         return self.__exception
 
     @exception.setter
@@ -174,19 +182,18 @@ class Event:
             print('Prefix not found')
             return
         i = 0
-
         for object in objects:
             if not i == 0:
                 file = object.key
                 file = file.split('/')[1]
-                if file.split('.')[1] not in self.__exception:
+                if (file.split('.')[1] not in self.__exception) or (type(self.__exception) == str and file.split('.')[1] != self.__exception):
                     if self.__only_extension:
                         if file.split('.')[1] in self.__only_extension:
-                            self.__bucket.objects.filter(
-                                Prefix=f'{self.__prefix}/').download_file(file, self.__directory)
+                            self.__bucket.download_file(
+                                f'{self.__prefix}/{file}', os.path.join(self.__directory, file))
                     else:
-                        self.__bucket.objects.filter(
-                            Prefix=f'{self.__prefix}/').download_file(file, self.__directory)
+                        self.__bucket.download_file(
+                            f'{self.__prefix}/{file}', os.path.join(self.__directory, file))
 
             """
                 s3_resource.Object(bucket_name, object.key).download_file(
@@ -194,8 +201,7 @@ class Event:
             """
             i += 1
 
-    download_all_files(bucket=bucket, s3_resource=s3_resource,
-                       prefix='Video', directory='master')
+    # download_all_files(bucket=bucket, s3_resource=s3_resource,prefix = 'Video', directory = 'master')
 
     def overwrite(self):
         '''
@@ -327,7 +333,7 @@ class Event:
         Note: IN CASE YOU DONT PROVIDE THE FILE AND IT EXTENSION IN THE PATH, YOU MUST PROVIDE IT IN the file param.
 
         file -- type str: can be just the file name with the sufix for exemple "my_file.txt" or could be None
-        Note: file can only be empty if the path has the path+ file+ file_extension, exemple:       
+        Note: file can only be empty if the path has the path+ file+ file_extension, exemple:
         C:\Windows\random_folder\my_file.txt\
         file exemple:
             my_file.txt
@@ -382,7 +388,7 @@ class Event:
         params: path, extension, dir_erase
         path --the relative path or absolute path to the folder where you with the delete the itens
 
-        extension -- delete ALL the files with she same extension given 
+        extension -- delete ALL the files with she same extension given
             exemple:
             imagine you have in your folder the files
             --- my_file.txt
@@ -410,7 +416,7 @@ class Event:
             # walk list dir turbinado
             # os.getcwd(path)
             for root, dirs, file in os.walk(os.chdir(self.__path)):
-                if file.split('.')[1] == self.__extension:
+                if file.split('.')[1] == self.__extension or file.split('.')[1] in self.__extension:
                     os.remove(item)
             if dir_erase == True:
                 os.rmdir(self.path.split('\\')[-1])
@@ -418,7 +424,7 @@ class Event:
     def events_to_do(self, events=[]):
         '''
         it get 'objects' to do actions
-        it must be provided 
+        it must be provided
         aws_access_key_id
         aws_secret_acess_key
         bucket name
@@ -432,45 +438,21 @@ class Event:
                 print('No file or path Specified')
             else:
                 try:
-
-                    s3_resource = boto3.resource('s3',
-                                                 aws_access_key_id=item.bucket[0],
-                                                 aws_secret_access_key=item.bucket[1])
-                    bucket = s3_resource.Bucket(item.bucket[2])
-
                     if item.event == 'write':
-                        self.write(bucket=bucket,
-                                   file=item.file,
-                                   content=item.content,
-                                   prefix=item.prefix,
-                                   jsonfy=item.jsonfy)
+                        self.write()
                     elif item.event == 'overwrite':
                         if item.prefix == None:
-                            self.overwrite(bucket=bucket,
-                                           file=item.file,
-                                           content=item.content,
-                                           prefix='Video',
-                                           jsonfy=item.jsonfy)
-                        self.overwrite(bucket=bucket,
-                                       file=item.file,
-                                       content=item.content,
-                                       prefix=item.prefix,
-                                       jsonfy=item.jsonfy)
+                            self.overwrite()
+                        self.overwrite()
                     elif item.event == 'read':
                         self.read(file=item.file, jsonfy=item.jsonfy)
                     elif item.event == 'download_all_files':
-                        self.download_all_files(bucket=bucket,
-                                                s3_resource=s3_resource,
-                                                prefix=item.prefix,
-                                                directory=item.directory,
-                                                bucket_name=item.bucket[2])
+                        self.download_all_files()
 
                     # elif item.event == 'download_all_files':
                     # download_all_files(bucket=bucket, s3_resource=s3_resource, prefix=item.prefix,directory=item.directory, bucket_name=item.bucket[2])
                     elif item.event == 'erase':
-                        self.erase(path=item.path,
-                                   extension=item.extension,
-                                   dir_erase=item.dir_erase)
+                        self.erase()
                     else:
                         'you suck'
                 except:
@@ -479,4 +461,3 @@ class Event:
 
                 else:
                     print('Success')
-
